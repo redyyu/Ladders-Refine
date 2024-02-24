@@ -22,7 +22,7 @@ module Ladders
 		Screws=20,
 		keep WeldingMask,
 
-		SkillRequired:MetalWelding=5,
+		SkillRequired:MetalWelding=6,
 		Sound:BlowTorch,
 		NeedToBeLearn:false,
 		Result:SteelLadder,
@@ -48,7 +48,7 @@ module Ladders
 		Screws=20,
 		keep Hammer,
 
-		SkillRequired:Woodwork=3,
+		SkillRequired:Woodwork=6,
 		Sound:Hammering,
 		NeedToBeLearn:false,
 		Result:WoodenLadder,

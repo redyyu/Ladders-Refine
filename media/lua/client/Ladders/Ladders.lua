@@ -65,6 +65,7 @@ function Ladders.makeLadderClimbable(square, north)
 		z = z + 1
 		local aboveSquare = getSquare(x, y, z)
 		if not aboveSquare or aboveSquare:TreatAsSolidFloor() or aboveSquare:Is("RoofGroup") then break end
+		-- if not aboveSquare or aboveSquare:TreatAsSolidFloor() then break end
 		if aboveSquare:Is(flags.climbSheet) then
 			if topObject then topSquare:transmitRemoveItemFromSquare(topObject) end
 			topSquare = aboveSquare
@@ -126,7 +127,7 @@ function Ladders.OnKeyPressed(key)
 		if MainScreen.instance:isVisible() then return end
 
 		-- Will store last player to attempt to climb a ladder.
-		Ladders.player = player 
+		-- Ladders.player = player 
 		-- might be for some reason I don know. 
 		-- seems is not usefull at all. maybe on server or with gamepad?
 
@@ -136,6 +137,7 @@ function Ladders.OnKeyPressed(key)
 		local square = player:getSquare()
 		Ladders.makeLadderClimbableFromTop(square)
 		Ladders.makeLadderClimbableFromBottom(square)
+
 	end
 end
 
@@ -150,7 +152,7 @@ function Ladders.UpdatePlayerChunk(player)
 		local is_climb_ladder = false
 		local objects = square:getObjects()
 		for i=0, objects:size() - 1 do
-			if Ladders.ladderTiles[objects:get(i):getTextureName()] then
+			if Ladders.ladderTilesMap[objects:get(i):getTextureName()] then
 				is_climb_ladder = true
 				break
 			end
@@ -273,19 +275,6 @@ for index = 1, 62 do
 	end
 end
 
--- Generate Table for faster check during anim choice
-Ladders.ladderTiles = {}
-
-for each, name in ipairs(Ladders.westLadderTiles) do
-	Ladders.ladderTiles[name] = true
-end
-
-for each, name in ipairs(Ladders.northLadderTiles) do
-	Ladders.ladderTiles[name] = true
-end
-
-
-
 Ladders.holeTiles = {
 	"floors_interior_carpet_01_24"
 }
@@ -293,36 +282,48 @@ Ladders.holeTiles = {
 Ladders.poleTiles = {
 	"recreational_sports_01_32", "recreational_sports_01_33"
 }
--- Ladders.sheetRopes = {
--- 	"crafted_01_0", "crafted_01_1", "crafted_01_3", "crafted_01_4", "crafted_01_5", 
--- 	"crafted_01_8", "crafted_01_9", "crafted_01_10", "crafted_01_13", "crafted_01_14", "crafted_01_15", 
--- 	"crafted_01_22", "crafted_01_23",
--- 	"crafted_01_48", "crafted_01_49", "crafted_01_50", "crafted_01_53",
--- }
 
+
+-- Generate Table for faster check during anim choice
+Ladders.ladderTilesMap = {}
+Ladders.ladderOrPoleTilesMap = {}
+
+for _, name in ipairs(Ladders.westLadderTiles) do
+	Ladders.ladderTilesMap[name] = true
+	Ladders.ladderOrPoleTilesMap[name] = true
+end
+
+for _, name in ipairs(Ladders.northLadderTiles) do
+	Ladders.ladderTilesMap[name] = true
+	Ladders.ladderOrPoleTilesMap[name] = true 
+end
+
+for _, name in ipairs(Ladders.poleTiles) do
+	Ladders.ladderOrPoleTilesMap[name] = true
+end
 
 
 Ladders.setLadderClimbingFlags = function(manager)
 	local IsoFlagType, ipairs = IsoFlagType, ipairs
 
-	for each, name in ipairs(Ladders.westLadderTiles) do
+	for _, name in ipairs(Ladders.westLadderTiles) do
 		local props = manager:getSprite(name):getProperties()
 		props:Set(IsoFlagType.climbSheetW)
 	end
 
-	for each, name in ipairs(Ladders.northLadderTiles) do
+	for _, name in ipairs(Ladders.northLadderTiles) do
 		local props = manager:getSprite(name):getProperties()
 		props:Set(IsoFlagType.climbSheetN)
 	end
 
-	for each, name in ipairs(Ladders.holeTiles) do
+	for _, name in ipairs(Ladders.holeTiles) do
 		local props = manager:getSprite(name):getProperties()
 		props:Set(IsoFlagType.climbSheetTopW)
 		props:Set(IsoFlagType.HoppableW)
 		props:UnSet(IsoFlagType.solidfloor)
 	end
 
-	for each, name in ipairs(Ladders.poleTiles) do
+	for _, name in ipairs(Ladders.poleTiles) do
 		local props = manager:getSprite(name):getProperties()
 		props:Set(IsoFlagType.climbSheetW)
 	end
@@ -348,11 +349,11 @@ Events.OnLoadedTileDefinitions.Add(Ladders.setLadderClimbingFlags)
 
 local is_world_ladder_or_pole = function(worldobjects)
 	for _, obj in ipairs(worldobjects) do
-		local texture_name = obj:getTextureName()
-		if Ladders.ladderTiles[texture_name] or Ladders.poleTiles[texture_name] then
+		if Ladders.ladderOrPoleTilesMap[obj:getTextureName()] then
 			return true
 		end
 	end
+	return false
 end
 
 
@@ -371,9 +372,9 @@ Ladders.doBuildMenu = function(player, context, worldobjects, test)
 		context:removeOptionByName(climbOption.name)
 		if square and playerObj:canClimbSheetRope(square) and playerObj:getPerkLevel(Perks.Strength) >= 0 then
 			if is_ladder then
-				Ladders.player:setVariable("ClimbLadder", true)
+				playerObj:setVariable("ClimbLadder", true)
 			else
-				Ladders.player:setVariable("ClimbLadder", false)
+				playerObj:setVariable("ClimbLadder", false)
 			end
 			context:addOptionOnTop(opt_name, worldobjects, ISWorldObjectContextMenu.onClimbSheetRope, square, is_down, player)
 		end
