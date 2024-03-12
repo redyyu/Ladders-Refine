@@ -409,16 +409,22 @@ Ladders.doBuildMenu = function(player, context, worldobjects, test)
         if isWorldLadderOrPole(worldobjects) then
             context:removeOptionByName(removeRopeOption.name)
         else
-            ISWorldObjectContextMenu.getSquaresInRadius(square:getX(), square:getY(), square:getZ()-1, 2, doneSquare, squares)
-            for _, sq in ipairs(squares) do
-                if isWorldLadderOrPole(sq:getObjects()) then
-                    if isDebugEnabled() then
-                        print('------------ IS LADDER, SKIP Remove Escape Sheet Rope -----------')
+            local startZ = square:getZ()
+            while(startZ >= 0) do
+                ISWorldObjectContextMenu.getSquaresInRadius(square:getX(), square:getY(), startZ - 1, 2, doneSquare, squares)
+                for _, sq in ipairs(squares) do
+                    if isWorldLadderOrPole(sq:getObjects()) then
+                        if isDebugEnabled() then
+                            print('------------ IS LADDER, SKIP Remove Escape Sheet Rope -----------')
+                        end
+                        context:removeOptionByName(removeRopeOption.name)
+                        startZ = 0
+                        break
                     end
-                    context:removeOptionByName(removeRopeOption.name)
-                    break
                 end
+                startZ = startZ -1
             end
+            
         end
     end
 end
