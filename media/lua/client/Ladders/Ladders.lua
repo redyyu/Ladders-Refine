@@ -409,6 +409,8 @@ Ladders.doBuildMenu = function(player, context, worldobjects, test)
         if isWorldLadderOrPole(worldobjects) then
             context:removeOptionByName(removeRopeOption.name)
         else
+            -- no patch solution, seems is error from java side.
+            -- so..... this is only way for now.
             local startZ = square:getZ()
             while(startZ > 0) do
                 ISWorldObjectContextMenu.getSquaresInRadius(square:getX(), square:getY(), startZ - 1, 2, doneSquare, squares)
@@ -424,7 +426,7 @@ Ladders.doBuildMenu = function(player, context, worldobjects, test)
                 end
                 startZ = startZ -1
             end
-            
+
         end
     end
 end
