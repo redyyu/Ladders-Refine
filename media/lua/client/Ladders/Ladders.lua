@@ -410,7 +410,7 @@ Ladders.doBuildMenu = function(player, context, worldobjects, test)
             context:removeOptionByName(removeRopeOption.name)
         else
             local startZ = square:getZ()
-            while(startZ >= 0) do
+            while(startZ > 0) do
                 ISWorldObjectContextMenu.getSquaresInRadius(square:getX(), square:getY(), startZ - 1, 2, doneSquare, squares)
                 for _, sq in ipairs(squares) do
                     if isWorldLadderOrPole(sq:getObjects()) then
